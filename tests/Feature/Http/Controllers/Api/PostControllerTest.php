@@ -123,4 +123,14 @@ class PostControllerTest extends TestCase
             ]
         )->assertStatus(200);
     }
+
+    public function test_guest()
+    {
+        //Check that the user is not authorize
+        $this->getJson('api/posts')->assertStatus(401);
+        $this->postJson('api/posts')->assertStatus(401);
+        $this->putJson('api/posts/1000')->assertStatus(401);
+        $this->deleteJson('api/posts/1000')->assertStatus(401);
+        $this->getJson('api/posts/1000')->assertStatus(401);
+    }
 }
