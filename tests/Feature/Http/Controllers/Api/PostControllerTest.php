@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Post;
+use App\User;
 
 class PostControllerTest extends TestCase
 {
@@ -14,8 +15,9 @@ class PostControllerTest extends TestCase
     // Tests the store method
     public function test_store()
     {
-        $this->withoutExceptionHandling();
-        $response = $this->postJson('/api/posts', ['title' => 'test title']);
+        $user = factory(User::class)->create();
+        //$this->withoutExceptionHandling();
+        $response = $this->actingAs($user, 'api')->postJson('/api/posts', ['title' => 'test title']);
 
         // The JSON response should contains this structure
         $response->assertJsonStructure(
@@ -32,8 +34,9 @@ class PostControllerTest extends TestCase
 
     public function test_no_emptyTitles()
     {
+        $user = factory(User::class)->create();
         //Create a request
-        $response = $this->postJson(
+        $response = $this->actingAs($user, 'api')->postJson(
             '/api/posts',
             ['title' => '']
         );
@@ -46,9 +49,10 @@ class PostControllerTest extends TestCase
     public function test_show()
     {
         //Create a fake post
+        $user = factory(User::class)->create();
         $post = factory(Post::class)->create();
 
-        $response = $this->json('GET', "/api/posts/$post->id");
+        $response = $this->actingAs($user, 'api')->json('GET', "/api/posts/$post->id");
 
         // The JSON response should contains this structure
         $response->assertJsonStructure(
@@ -62,7 +66,8 @@ class PostControllerTest extends TestCase
 
     public function test_404_show()
     {
-        $response = $this->json('GET', '/api/posts/100');
+        $user = factory(User::class)->create();
+        $response = $this->actingAs($user, 'api')->json('GET', '/api/posts/100');
 
         //Verify status 200 and the right information in the post
         $response->assertStatus(404);
@@ -70,11 +75,12 @@ class PostControllerTest extends TestCase
 
     public function test_update()
     {
-        $this->withoutExceptionHandling();
+        $user = factory(User::class)->create();
+        //$this->withoutExceptionHandling();
         //Create a post
         $post = factory(Post::class)->create();
 
-        $response = $this->putJson(
+        $response = $this->actingAs($user, 'api')->putJson(
             "/api/posts/$post->id",
             ['title' => 'New title']
         );
@@ -94,9 +100,10 @@ class PostControllerTest extends TestCase
 
     public function test_delete()
     {
+        $user = factory(User::class)->create();
         $post = factory(Post::class)->create();
         //DELETE method request
-        $response = $this->deleteJson("/api/posts/$post->id");
+        $response = $this->actingAs($user, 'api')->deleteJson("/api/posts/$post->id");
         //Test nothing is in the response
         $response->assertSee(null)
             ->assertStatus(204); //No content
@@ -107,8 +114,9 @@ class PostControllerTest extends TestCase
 
     public function test_index()
     {
+        $user = factory(User::class)->create();
         factory(Post::class, 5)->create();
-        $response = $this->getJson('/api/posts');
+        $response = $this->actingAs($user, 'api')->getJson('/api/posts');
         // The JSON response should contains this structure
         $response->assertJsonStructure(
             [
