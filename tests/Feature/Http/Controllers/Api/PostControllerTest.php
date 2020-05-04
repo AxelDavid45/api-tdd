@@ -58,7 +58,6 @@ class PostControllerTest extends TestCase
         //Verify status 200 and the right information in the post
         $response->assertStatus(200)
             ->assertJson(['title' => $post->title]);
-        
     }
 
     public function test_404_show()
@@ -69,12 +68,16 @@ class PostControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test_update() {
+    public function test_update()
+    {
         $this->withoutExceptionHandling();
         //Create a post
         $post = factory(Post::class)->create();
 
-        $response = $this->putJson("/api/posts/$post->id", ['title' => 'New title']);
+        $response = $this->putJson(
+            "/api/posts/$post->id",
+            ['title' => 'New title']
+        );
 
         // The JSON response should contains this structure
         $response->assertJsonStructure(
@@ -89,7 +92,8 @@ class PostControllerTest extends TestCase
         $this->assertDatabaseHas('posts', ['title' => 'New title']);
     }
 
-    public function test_delete() {
+    public function test_delete()
+    {
         $post = factory(Post::class)->create();
         //DELETE method request
         $response = $this->deleteJson("/api/posts/$post->id");
@@ -99,5 +103,24 @@ class PostControllerTest extends TestCase
 
         //Test the element was removed from the db
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
+    }
+
+    public function test_index()
+    {
+        factory(Post::class, 5)->create();
+        $response = $this->getJson('/api/posts');
+        // The JSON response should contains this structure
+        $response->assertJsonStructure(
+            [
+                'data' => [
+                    '*' => [
+                        'id',
+                        'title',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ]
+            ]
+        )->assertStatus(200);
     }
 }
