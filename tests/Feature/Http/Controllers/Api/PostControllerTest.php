@@ -58,6 +58,7 @@ class PostControllerTest extends TestCase
         //Verify status 200 and the right information in the post
         $response->assertStatus(200)
             ->assertJson(['title' => $post->title]);
+        
     }
 
     public function test_404_show()
@@ -86,6 +87,17 @@ class PostControllerTest extends TestCase
 
         //Confirm the data in the database
         $this->assertDatabaseHas('posts', ['title' => 'New title']);
+    }
 
+    public function test_delete() {
+        $post = factory(Post::class)->create();
+        //DELETE method request
+        $response = $this->deleteJson("/api/posts/$post->id");
+        //Test nothing is in the response
+        $response->assertSee(null)
+            ->assertStatus(204); //No content
+
+        //Test the element was removed from the db
+        $this->assertDatabaseMissing('posts', ['id' => $post->id]);
     }
 }

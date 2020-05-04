@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Post;
 use App\Http\Requests\PostRequest;
+use Illuminate\Http\JsonResponse;
 
 class PostController extends Controller
 {
@@ -51,11 +52,13 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     *
+     * @return JsonResponse
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return response()->json(null, 204);
     }
 }
